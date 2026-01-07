@@ -1,0 +1,22 @@
+artifact_path: file:///C:/Users/rowdy/Documents/optuna-mlflow-pipeline/outputs/mlruns/998688539789449268/models/m-7727e4bf3ee843f7bb247bdd28ab3f2e/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.14.1
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.sklearn.XGBRegressor
+    model_format: ubj
+    xgb_version: 3.1.2
+mlflow_version: 3.8.1
+model_id: m-7727e4bf3ee843f7bb247bdd28ab3f2e
+model_size_bytes: 2495884
+model_uuid: m-7727e4bf3ee843f7bb247bdd28ab3f2e
+prompts: null
+run_id: 5f3928fca21d4e91a80c656345db80d3
+utc_time_created: '2026-01-07 06:40:42.553584'

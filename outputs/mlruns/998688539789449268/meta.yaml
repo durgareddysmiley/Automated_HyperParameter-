@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/rowdy/Documents/optuna-mlflow-pipeline/outputs/mlruns/998688539789449268
+creation_time: 1767767660279
+experiment_id: '998688539789449268'
+last_update_time: 1767767660279
+lifecycle_stage: active
+name: optuna-xgboost-optimization

@@ -1,0 +1,17 @@
+{
+    "n_trials_completed": 100,
+    "n_trials_pruned": 0,
+    "best_cv_rmse": 0.44956382311925647,
+    "test_rmse": 0.43899985607706504,
+    "test_r2": 0.8529307438854751,
+    "best_params": {
+        "n_estimators": 286,
+        "max_depth": 10,
+        "learning_rate": 0.051249156879908456,
+        "subsample": 0.7641418592514434,
+        "colsample_bytree": 0.6826833920957563,
+        "min_child_weight": 7,
+        "gamma": 0.058526280933276636
+    },
+    "optimization_time_seconds": 1085.381884098053
+}

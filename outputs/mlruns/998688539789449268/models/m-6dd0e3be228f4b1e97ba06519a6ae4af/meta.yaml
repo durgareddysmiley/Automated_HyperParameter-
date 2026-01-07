@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/rowdy/Documents/optuna-mlflow-pipeline/outputs/mlruns/998688539789449268/models/m-6dd0e3be228f4b1e97ba06519a6ae4af/artifacts
+creation_timestamp: 1767781825730
+experiment_id: '998688539789449268'
+last_updated_timestamp: 1767781839501
+model_id: m-6dd0e3be228f4b1e97ba06519a6ae4af
+model_type: null
+name: model
+source_run_id: 82783e5587fc480996e29e0305a919a4
+status: 2
+status_message: null
