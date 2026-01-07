@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.git/
+.gitignore
+.dockerignore
+.vscode/
+.idea/
+.ipynb_checkpoints/
+mlflow.db
+temp_optuna_study.db
+outputs/
