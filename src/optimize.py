@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import optuna
 import mlflow
 import mlflow.xgboost
@@ -6,6 +10,7 @@ import random
 import time
 import json
 import os
+import shutil
 
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
@@ -18,6 +23,7 @@ from optuna.visualization.matplotlib import (
 
 from data_loader import load_and_split_data
 from objective import objective
+import evaluate
 
 
 def main():
@@ -30,7 +36,9 @@ def main():
     OUTPUT_DIR = "/app/outputs"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    STUDY_DB = f"{OUTPUT_DIR}/optuna_study.db"
+    # 🔥 INTERNAL DB to avoid locking on Windows mounts
+    INTERNAL_DB = "temp_optuna_study.db"
+    STUDY_DB_PATH = f"sqlite:///{INTERNAL_DB}"
 
     X_train, X_test, y_train, y_test = load_and_split_data()
 
@@ -42,21 +50,29 @@ def main():
         direction="maximize",
         sampler=TPESampler(seed=42),
         pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=5),
-        storage=f"sqlite:///{STUDY_DB}",
+        storage=STUDY_DB_PATH,
         load_if_exists=True
     )
 
     def wrapped_objective(trial):
-        with mlflow.start_run(run_name=f"trial_{trial.number}"):
-            value = objective(trial, X_train, y_train)
-
-            mlflow.log_params(trial.params)
-            mlflow.log_metric("cv_mse", -value)
-            mlflow.log_metric("cv_rmse", np.sqrt(-value))
-            mlflow.log_metric("trial_number", trial.number)
-            mlflow.set_tag("trial_state", trial.state.name)
-
-            return value
+        with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
+            try:
+                value = objective(trial, X_train, y_train)
+                
+                mlflow.log_params(trial.params)
+                mlflow.log_metric("cv_mse", -value)
+                mlflow.log_metric("cv_rmse", np.sqrt(-value))
+                mlflow.log_metric("trial_number", trial.number)
+                mlflow.set_tag("trial_state", "COMPLETE")
+                
+                return value
+            except optuna.exceptions.TrialPruned:
+                mlflow.set_tag("trial_state", "PRUNED")
+                raise
+            except Exception as e:
+                mlflow.set_tag("trial_state", "FAIL")
+                mlflow.log_param("error", str(e))
+                raise e
 
     study.optimize(wrapped_objective, n_trials=100, n_jobs=2)
 
@@ -83,26 +99,21 @@ def main():
         mlflow.log_metric("test_r2", test_r2)
         mlflow.xgboost.log_model(model, artifact_path="model")
 
-        fig1 = plot_optimization_history(study)
-        fig1.savefig("/app/outputs/optimization_history.png", bbox_inches="tight")
+        ax1 = plot_optimization_history(study)
+        ax1.figure.savefig("/app/outputs/optimization_history.png", bbox_inches="tight")
         mlflow.log_artifact("/app/outputs/optimization_history.png")
 
-        fig2 = plot_param_importances(study)
-        fig2.savefig("/app/outputs/param_importance.png", bbox_inches="tight")
+        ax2 = plot_param_importances(study)
+        ax2.figure.savefig("/app/outputs/param_importance.png", bbox_inches="tight")
         mlflow.log_artifact("/app/outputs/param_importance.png")
 
-    results = {
-        "n_trials_completed": len([t for t in study.trials if t.state.name == "COMPLETE"]),
-        "n_trials_pruned": len([t for t in study.trials if t.state.name == "PRUNED"]),
-        "best_cv_rmse": np.sqrt(-study.best_value),
-        "test_rmse": test_rmse,
-        "test_r2": test_r2,
-        "best_params": best_params,
-        "optimization_time_seconds": time.time() - start_time
-    }
+    # 10. Generate Results JSON (Using evaluate.py)
+    total_time = time.time() - start_time
+    evaluate.generate_results(study, test_rmse, test_r2, total_time, OUTPUT_DIR)
 
-    with open("/app/outputs/results.json", "w") as f:
-        json.dump(results, f, indent=4)
+    # 11. Copy DB to outputs for persistence
+    print("💾 Saving Optuna database...")
+    shutil.copy(INTERNAL_DB, f"{OUTPUT_DIR}/optuna_study.db")
 
 
 if __name__ == "__main__":

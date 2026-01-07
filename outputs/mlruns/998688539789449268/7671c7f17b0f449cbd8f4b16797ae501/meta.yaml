@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/rowdy/Documents/optuna-mlflow-pipeline/outputs/mlruns/998688539789449268/7671c7f17b0f449cbd8f4b16797ae501/artifacts
+end_time: 1767788896012
+entry_point_name: ''
+experiment_id: '998688539789449268'
+lifecycle_stage: active
+run_id: 7671c7f17b0f449cbd8f4b16797ae501
+run_name: trial_47
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767788881557
+status: 3
+tags: []
+user_id: root

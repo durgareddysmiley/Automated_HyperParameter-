@@ -16,8 +16,8 @@ def generate_results(study, test_rmse, test_r2, optimization_time, output_dir):
     best_cv_rmse = np.sqrt(-study.best_value)
     
     results = {
-        "n_trials_completed": n_trials_completed,
-        "n_trials_pruned": n_trials_pruned,
+        "n_trials_completed": int(n_trials_completed),
+        "n_trials_pruned": int(n_trials_pruned),
         "best_cv_rmse": float(best_cv_rmse),
         "test_rmse": float(test_rmse),
         "test_r2": float(test_r2),
